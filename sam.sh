@@ -11,7 +11,8 @@
 # If the transient is viable, it needs priority and SAM will update environment.
 # If transient is not viable, restore local agent environment.
 
-sam_prep () {
+sam_prep () 
+{
   #export SAM_ENV_PASS=$HOME/.ssh/.sam_env_pass;
   #export SAM_ENV_BASE=$HOME/.ssh/.sam_env_base;
   export SAM_ENV_FILE=$HOME/.ssh/.sam_env_file;
