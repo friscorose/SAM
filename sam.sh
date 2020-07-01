@@ -27,6 +27,14 @@ sam_prep ()
   fi
 }
 
+sam_init_agent () 
+{
+  eval "$(ssh-agent -k &> /dev/null)";
+  killall ssh-agent 2>/dev/null;
+  /bin/rm -f $SAM_AUTH_SOCK
+  eval "$(ssh-agent -a $SAM_AUTH_SOCK -s | tee $SAM_ENV_FILE)";
+}
+
 sam () 
 { 
   #DEBUG="YES";
@@ -70,10 +78,7 @@ sam ()
   [ -n "$DEBUG" ] && echo -n "SAM branching on condition: $SA_Stat, ";
   case $SA_Stat in
     2)  [ "$DEBUG" ] && echo "agent unreachable, start a new one.";
-      eval "$(ssh-agent -k &> /dev/null)";
-      killall ssh-agent 2>/dev/null;
-      rm -f $SAM_AUTH_SOCK
-      eval "$(ssh-agent -a $SAM_AUTH_SOCK -s | tee $SAM_ENV_FILE)";
+      sam_init_agent
       ;&
     *)  [ "$DEBUG" ] && echo "Check/add keys to agent.";
   esac
@@ -82,11 +87,12 @@ sam ()
   for key in "$@"; do
     [ ! -f "$key" ] && echo "cannot find $key" && continue
     [ "${SAM_KEYS#*$key}" != "$SAM_KEYS" ] && echo "$key already added" && continue
-    if [ -z "$KEYS" ]; then
-      KEYS="$key"
-    else
-      KEYS="$KEYS $key"
-    fi
+    KEYS=${KEYS:+"$KEYS "}$key
+    #if [ -z "$KEYS" ]; then
+    #  KEYS="$key"
+    #else
+    #  KEYS="$KEYS $key"
+    #fi
   done
   if [ -n "$KEYS" ]; then
     for n in {1..3}; do
@@ -97,4 +103,3 @@ sam ()
   fi
   bye_sam;
 }
-
