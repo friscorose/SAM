@@ -36,7 +36,7 @@ sam ()
     else
       echo "SAM identities validated from ${SSH_CONNECTION%%' '*}:";
     fi
-    ssh-add -l &>/dev/null;
+    ssh-add -l 2>/dev/null;
   }
   bye_sam () 
   {
